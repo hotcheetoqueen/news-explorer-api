@@ -1,15 +1,16 @@
+const bodyParser = require('body-parser');
 // const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 
-const articlesRoute = require('./routes/articles');
-const usersRoute = require('./routes/users');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
 const { PORT = 3000 } = process.env;
 
-// app.use(cors());
-// app.options('*', cors());
+app.use(bodyParser.json());
+app.use(express.json({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://localhost:27017/newsexplorer', {
   useNewUrlParser: true,
@@ -18,11 +19,34 @@ mongoose.connect('mongodb://localhost:27017/newsexplorer', {
   useUnifiedTopology: true,
 });
 
-app.use(express.json({ extended: true }));
-app.use(express.urlencoded({ extended: true }));
+app.use(requestLogger);
+// const routes = require('./routes/index.js');
 
+// const auth = require('./middlewares/auth');
+// app.use(auth);
+
+const { signup, signin } = require('./controllers/auth');
+app.post('/signup', signup);
+app.post('/signin', signin);
+
+const articlesRoute = require('./routes/articles');
+const usersRoute = require('./routes/users');
 app.use('/articles', articlesRoute);
 app.use('/users', usersRoute);
+
+app.use(errorLogger);
+
+// app.use(errors());
+// app.use(cors());
+// app.options('*', cors());
+
+app.use((err, req, res, next) => {
+  res.status(500).send(err)
+})
+
+app.get('*', (req, res) => {
+  res.status(404).send('Requested resource not found');
+});
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
