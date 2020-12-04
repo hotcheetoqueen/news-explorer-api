@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const AuthError = require('../errors/AuthError');
+const RequestError = require('../errors/RequestError');
 
 const User = require('../models/user');
 
@@ -17,9 +19,8 @@ module.exports.signup = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err) {
-        console.log('No user made');
-        console.log(err);
+      if (err.name === 'ValidationError') {
+        throw new RequestError('Cannot create user');
       }
       next(err);
     })
@@ -37,13 +38,13 @@ module.exports.signin = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        console.log('No user exists');
+        throw new RequestError('Those credentials are not quite working. Try again!');
       }
 
       return bcrypt.compare(password, user.password, (error, isPasswordValid) => {
 
         if (!isPasswordValid) {
-          console.log('Password is wrong');
+          throw new AuthError('Those credentials are not quite working. Try again!');
         }
 
         const token = getJwtToken(user.id);
