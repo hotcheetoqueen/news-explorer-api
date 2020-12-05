@@ -2,15 +2,17 @@ const router = require('express').Router();
 const articles = require('../controllers/articles');
 const { celebrate, Joi } = require('celebrate');
 
-router.get('/', (req, res) => {
+const auth = require('../middlewares/auth');
+
+router.get('/', auth, (req, res) => {
   articles.getArticles(req, res);
 });
 
-router.post('/', (req, res) => {
+router.post('/', auth, (req, res) => {
   articles.postArticle(req, res);
 });
 
-router.delete('/articleId', (req, res) => {
+router.delete('/articleId', auth, (req, res) => {
   articles.deleteArticle(req, res);
 });
 

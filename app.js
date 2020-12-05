@@ -3,7 +3,6 @@ const { errors } = require('celebrate');
 // const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
-
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const app = express();
@@ -22,10 +21,6 @@ mongoose.connect('mongodb://localhost:27017/newsexplorer', {
 
 app.use(requestLogger);
 // const routes = require('./routes/index');
-
-// const auth = require('./middlewares/auth');
-// app.use(auth);
-
 const { signup, signin } = require('./controllers/auth');
 app.post('/signup', signup);
 app.post('/signin', signin);
