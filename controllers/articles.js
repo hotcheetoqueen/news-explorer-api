@@ -1,4 +1,5 @@
 const AuthError = require('../errors/AuthError');
+const NotFoundError = require('../errors/NotFoundError');
 const Article = require('../models/article');
 
 module.exports.getArticles = (req, res, next) => {
@@ -30,14 +31,22 @@ module.exports.postArticle = (req, res, next) => {
 module.exports.deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
     .then ((article) => {
-      if (article && req.user.id.toString() === article.owner.toString()) {
+      if (article && req.user.id === article.owner) {
         Article.deleteOne(article)
-          .then((article) => {
-            res.status(200).send({ message: 'Article deleted' });
+          .then((deletedArticle) => {
+            res.status(200).send(deletedArticle);
           })
+      } else if (!article) {
+        throw new NotFoundError('That article does not exist');
       } else {
         throw new AuthError('You can only delete your own articles');
       }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new NotFoundError('Something went wrong');
+      }
+      next(err);
     })
     .catch(next);
 };

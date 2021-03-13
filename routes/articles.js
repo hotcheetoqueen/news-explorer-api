@@ -12,7 +12,7 @@ router.post('/', auth, (req, res) => {
   articles.postArticle(req, res);
 });
 
-router.delete('/articleId', auth, (req, res) => {
+router.delete('/:articleId', auth, (req, res) => {
   articles.deleteArticle(req, res);
 });
 
