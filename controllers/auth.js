@@ -29,7 +29,7 @@ module.exports.signup = (req, res, next) => {
 }
 
 const getJwtToken = (id) => {
-  return jwt.sign({ id }, 'secret');
+  return jwt.sign({ id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret' );
 }
 
 module.exports.signin = (req, res, next) => {

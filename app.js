@@ -1,9 +1,11 @@
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
-// const cors = require('cors');
+const { errors } = require('celebrate'); 
 const express = require('express');
 const mongoose = require('mongoose');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+
+// const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 const { PORT = 3000 } = process.env;
