@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
 
 const auth = require('./auth');
 const articles = require('./articles');

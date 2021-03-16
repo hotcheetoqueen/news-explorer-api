@@ -1,5 +1,5 @@
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate'); 
+const { errors } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -24,11 +24,13 @@ mongoose.connect('mongodb://localhost:27017/newsexplorer', {
 app.use(requestLogger);
 // const routes = require('./routes/index');
 const { signup, signin } = require('./controllers/auth');
+
 app.post('/signup', signup);
 app.post('/signin', signin);
 
 const articlesRoute = require('./routes/articles');
 const usersRoute = require('./routes/users');
+
 app.use('/articles', articlesRoute);
 app.use('/users', usersRoute);
 
@@ -45,7 +47,9 @@ app.use((err, req, res, next) => {
   res
     .status(statusCode)
     .send({ message: statusCode === 500 ? 'An error occurred on the server' : message });
-  });
+
+  next();
+});
 
 app.get('*', (req, res) => {
   res.status(404).send('Requested resource not found');

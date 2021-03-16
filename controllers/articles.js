@@ -1,5 +1,6 @@
 const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
+const RequestError = require('../errors/RequestError');
 const Article = require('../models/article');
 
 module.exports.getArticles = (req, res, next) => {
@@ -12,9 +13,13 @@ module.exports.getArticles = (req, res, next) => {
 };
 
 module.exports.postArticle = (req, res, next) => {
-  const { keyword, title, text, date, source, link, image } = req.body;
+  const {
+    keyword, title, text, date, source, link, image,
+  } = req.body;
 
-  Article.create({ keyword, title, text, date, source, link, image, owner: req.user.id })
+  Article.create({
+    keyword, title, text, date, source, link, image, owner: req.user.id,
+  })
     .then((article) => {
       res.status(200).send({ data: article });
     })
@@ -30,12 +35,12 @@ module.exports.postArticle = (req, res, next) => {
 
 module.exports.deleteArticle = (req, res, next) => {
   Article.findById(req.params.articleId)
-    .then ((article) => {
+    .then((article) => {
       if (article && req.user.id === article.owner) {
         Article.deleteOne(article)
           .then((deletedArticle) => {
             res.status(200).send(deletedArticle);
-          })
+          });
       } else if (!article) {
         throw new NotFoundError('That article does not exist');
       } else {

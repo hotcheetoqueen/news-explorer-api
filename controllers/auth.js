@@ -3,34 +3,30 @@ const jwt = require('jsonwebtoken');
 const AuthError = require('../errors/AuthError');
 const RequestError = require('../errors/RequestError');
 
+require('dotenv').config();
+
 const User = require('../models/user');
 
 module.exports.signup = (req, res, next) => {
   const { name, email, password } = req.body;
 
-  bcrypt.hash(password, 10, (error, hash) => {
-    return User.create({ name, email, password: hash })
-    .then((user) => {
-      return res.status(200).send({
-        message: `User ${email} successfully created!`,
-        data: {
-          id: user.id
-        }
-      });
-    })
+  bcrypt.hash(password, 10, (error, hash) => User.create({ name, email, password: hash })
+    .then((user) => res.status(200).send({
+      message: `User ${email} successfully created!`,
+      data: {
+        id: user.id,
+      },
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new RequestError('Cannot create user');
       }
       next(err);
     })
-    .catch(next);
-  });
-}
+    .catch(next));
+};
 
-const getJwtToken = (id) => {
-  return jwt.sign({ id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret' );
-}
+const getJwtToken = (id) => jwt.sign({ id }, process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'dev-secret');
 
 module.exports.signin = (req, res, next) => {
   const { email, password } = req.body;
@@ -42,7 +38,6 @@ module.exports.signin = (req, res, next) => {
       }
 
       return bcrypt.compare(password, user.password, (error, isPasswordValid) => {
-
         if (!isPasswordValid) {
           throw new AuthError('Those credentials are not quite working. Try again!');
         }
@@ -51,11 +46,11 @@ module.exports.signin = (req, res, next) => {
 
         res.cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
-          httpOnly: true
-        })
+          httpOnly: true,
+        });
 
         return res.status(200).send({ token });
       });
     })
     .catch(next);
-}
+};
