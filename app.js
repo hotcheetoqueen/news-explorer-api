@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const express = require('express');
+const helmet = require("helmet");
 const mongoose = require('mongoose');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
@@ -15,6 +16,8 @@ const { PORT = 3000 } = process.env;
 app.use(bodyParser.json());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
+
+app.use(helmet());
 
 mongoose.connect(DB_ACCESS, {
   useNewUrlParser: true,
