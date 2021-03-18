@@ -24,8 +24,6 @@ module.exports.postArticle = (req, res, next) => {
       res.status(200).send({ data: article });
     })
     .catch((err) => {
-      console.log(err);
-
       if (err.name === 'ValidationError') {
         throw new RequestError('Unable to post article');
       }
