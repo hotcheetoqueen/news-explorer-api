@@ -1,11 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
 
-module.exports.validateId = celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().required().alphanum(),
-  }),
-});
-
 module.exports.validateSignup = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -21,7 +15,7 @@ module.exports.validateSignin = celebrate({
   }),
 });
 
-module.exports.validateArticle = celebrate({
+module.exports.validatePostArticle = celebrate({
   body: Joi.object().keys({
     keyword: Joi.string().required(),
     title: Joi.string().required(),
@@ -30,5 +24,11 @@ module.exports.validateArticle = celebrate({
     source: Joi.string().required(),
     link: Joi.string().uri().required(),
     image: Joi.string().uri().required(),
+  }),
+});
+
+module.exports.validateId = celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().required().alphanum(),
   }),
 });

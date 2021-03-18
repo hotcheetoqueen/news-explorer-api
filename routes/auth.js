@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const { signup, signin } = require('../controllers/auth');
+const { validateSignup, validateSignin } = require('../middlewares/validator');
 
-router.post('/signup', (req, res) => {
+router.post('/signup', validateSignup, (req, res) => {
   res.send(signup);
 });
 
-router.post('/signin', (req, res) => {
+router.post('/signin', validateSignin, (req, res) => {
   res.send(signin);
 });
 
