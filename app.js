@@ -4,6 +4,7 @@ const express = require('express');
 const helmet = require("helmet");
 const mongoose = require('mongoose');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { limiter } = require('./middlewares/limiter');
 
 require('dotenv').config();
 const { DB_ACCESS, STATUS_CODES, ERROR_MESSAGES } = require('./utils/constants');
@@ -18,6 +19,7 @@ app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
+app.use(limiter);
 
 mongoose.connect(DB_ACCESS, {
   useNewUrlParser: true,
