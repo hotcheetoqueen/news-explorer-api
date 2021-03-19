@@ -10,4 +10,4 @@ JWT authorization
 https://www.figma.com/file/z1bxDn7eBEDlsDhnZ9dtin/Your-Final-Project?node-id=0%3A1
 
 ### Deployment
-http://hotcheetonews.students.nomoreparties.site/
+http://api.hotcheetonews.students.nomoreparties.site/
