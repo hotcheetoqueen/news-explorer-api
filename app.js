@@ -4,6 +4,7 @@ const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { handleErrors } = require('./middlewares/errors.js');
 const { limiter } = require('./middlewares/limiter');
 
 require('dotenv').config();
@@ -34,23 +35,11 @@ app.use(errors());
 
 app.use('/', routes);
 
-app.use((err, req, res, next) => {
-  const { statusCode = STATUS_CODES.internalServer, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === STATUS_CODES.internalServer
-        ? ERROR_MESSAGES.internalServer
-        : message,
-    });
-
-  next();
-});
-
 app.get('*', (req, res) => {
   res.status(STATUS_CODES.notFound).send({ message: ERROR_MESSAGES.notFound });
 });
+
+app.use(handleErrors);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);

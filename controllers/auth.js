@@ -1,17 +1,20 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const User = require('../models/user');
+
 const AuthError = require('../errors/AuthError');
 const RequestError = require('../errors/RequestError');
+const { ERROR_MESSAGES, STATUS_CODES } = require('../utils/constants');
 
-require('dotenv').config();
-
-const User = require('../models/user');
+dotenv.config();
+// const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.signup = (req, res, next) => {
   const { name, email, password } = req.body;
 
   bcrypt.hash(password, 10, (error, hash) => User.create({ name, email, password: hash })
-    .then((user) => res.status(200).send({
+    .then((user) => res.status(STATUS_CODES.created).send({
       message: `User ${email} successfully created!`,
       data: {
         id: user.id,
@@ -19,7 +22,7 @@ module.exports.signup = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new RequestError('Cannot create user');
+        throw new RequestError(ERROR_MESSAGES.badRequest);
       }
       next(err);
     })
@@ -34,12 +37,12 @@ module.exports.signin = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new RequestError('Those credentials are not quite working. Try again!');
+        throw new RequestError(ERROR_MESSAGES.badRequest);
       }
 
       return bcrypt.compare(password, user.password, (error, isPasswordValid) => {
         if (!isPasswordValid) {
-          throw new AuthError('Those credentials are not quite working. Try again!');
+          throw new AuthError(ERROR_MESSAGES.unauthorized);
         }
 
         const token = getJwtToken(user.id);

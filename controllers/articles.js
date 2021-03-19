@@ -2,6 +2,7 @@ const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
 const Article = require('../models/article');
+const { ERROR_MESSAGES } = require('../utils/constants');
 
 module.exports.getArticles = (req, res, next) => {
   Article.find({ })
@@ -25,7 +26,7 @@ module.exports.postArticle = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new RequestError('Unable to post article');
+        throw new RequestError(ERROR_MESSAGES.badRequest);
       }
     })
     .catch(next);
@@ -40,14 +41,14 @@ module.exports.deleteArticle = (req, res, next) => {
             res.status(200).send(deletedArticle);
           });
       } else if (!article) {
-        throw new NotFoundError('That article does not exist');
+        throw new NotFoundError(ERROR_MESSAGES.notFound);
       } else {
-        throw new AuthError('You can only delete your own articles');
+        throw new AuthError(ERROR_MESSAGES.unauthorized);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new NotFoundError('Something went wrong');
+        throw new NotFoundError(ERROR_MESSAGES.notFound);
       }
       next(err);
     })
