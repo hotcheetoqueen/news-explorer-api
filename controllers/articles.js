@@ -50,7 +50,6 @@ module.exports.deleteArticle = (req, res, next) => {
       if (err.name === 'CastError') {
         throw new NotFoundError(ERROR_MESSAGES.notFound);
       }
-      next(err);
     })
     .catch(next);
 };
