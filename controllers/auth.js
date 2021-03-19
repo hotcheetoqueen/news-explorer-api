@@ -5,6 +5,7 @@ const User = require('../models/user');
 
 const AuthError = require('../errors/AuthError');
 const RequestError = require('../errors/RequestError');
+const ConflictError = require('../errors/ConflictError');
 const { ERROR_MESSAGES, STATUS_CODES } = require('../utils/constants');
 
 dotenv.config();
@@ -24,12 +25,13 @@ module.exports.signup = (req, res, next) => {
       if (err.name === 'ValidationError') {
         throw new RequestError(ERROR_MESSAGES.badRequest);
       }
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw new ConflictError(ERROR_MESSAGES.signup);
+      }
       next(err);
     })
     .catch(next));
 };
-
-const getJwtToken = (id) => jwt.sign({ id }, process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'dev-secret');
 
 module.exports.signin = (req, res, next) => {
   const { email, password } = req.body;
@@ -37,7 +39,7 @@ module.exports.signin = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new RequestError(ERROR_MESSAGES.badRequest);
+        throw new AuthError(ERROR_MESSAGES.unauthorized);
       }
 
       return bcrypt.compare(password, user.password, (error, isPasswordValid) => {
@@ -45,15 +47,17 @@ module.exports.signin = (req, res, next) => {
           throw new AuthError(ERROR_MESSAGES.unauthorized);
         }
 
-        const token = getJwtToken(user.id);
+        const getJwtToken = (id) => jwt.sign({ id }, process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'dev-secret');
 
+        const token = getJwtToken(user.id);
+        res.header('authorization', `Bearer ${token}`);
         res.cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         });
-
-        return res.status(200).send({ token });
+        res.status(STATUS_CODES.ok).send({ token });
       });
     })
+
     .catch(next);
 };
