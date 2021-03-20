@@ -3,11 +3,11 @@ const { signup, signin } = require('../controllers/auth');
 const { validateSignup, validateSignin } = require('../middlewares/validator');
 
 router.post('/signup', validateSignup, (req, res) => {
-  res.send(signup);
+  signup(req, res);
 });
 
 router.post('/signin', validateSignin, (req, res) => {
-  res.send(signin);
+  signin(req, res);
 });
 
 module.exports = router;
