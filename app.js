@@ -19,6 +19,9 @@ app.use(bodyParser.json());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
+app.use(requestLogger);
+app.use(errorLogger);
+
 app.use(helmet());
 app.use(limiter);
 
@@ -29,8 +32,6 @@ mongoose.connect(DB_ACCESS, {
   useUnifiedTopology: true,
 });
 
-app.use(requestLogger);
-app.use(errorLogger);
 app.use(errors());
 
 app.use('/', routes);
