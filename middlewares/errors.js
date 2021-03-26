@@ -6,7 +6,7 @@ module.exports.handleErrors = (err, req, res, next) => {
     res
       .status(STATUS_CODES.badRequest)
       .send({ message: [...err.details.entries()][0][1].message });
-  }
+  } else {
 
   const { statusCode = STATUS_CODES.ok, message } = err;
 
@@ -17,6 +17,8 @@ module.exports.handleErrors = (err, req, res, next) => {
         ? ERROR_MESSAGES.internalServer
         : message,
     });
+
+  }
 
   next(err);
 };
