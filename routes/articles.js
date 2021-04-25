@@ -8,8 +8,8 @@ router.get('/', auth, (req, res) => {
   articles.getArticles(req, res);
 });
 
-router.post('/', auth, validatePostArticle, (req, res) => {
-  articles.postArticle(req, res);
+router.post('/', auth, validatePostArticle, (req, res, next) => {
+  articles.postArticle(req, res, next);
 });
 
 router.delete('/:id', auth, validateId, (req, res) => {
