@@ -33,7 +33,7 @@ module.exports.postArticle = (req, res, next) => {
 };
 
 module.exports.deleteArticle = (req, res, next) => {
-  Article.findById(req.params.id)
+  Article.findById(req.params.id).select('+owner')
     .then((article) => {
       if (article && req.user.id === article.owner) {
         Article.deleteOne(article)
