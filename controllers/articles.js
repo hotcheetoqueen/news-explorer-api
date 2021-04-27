@@ -33,23 +33,33 @@ module.exports.postArticle = (req, res, next) => {
 };
 
 module.exports.deleteArticle = (req, res, next) => {
-  Article.findById(req.params.id).select('+owner')
-    .then((article) => {
-      if (article && req.user.id === article.owner) {
-        Article.deleteOne(article)
-          .then((deletedArticle) => {
-            res.status(200).send(deletedArticle);
-          });
-      } else if (!article) {
-        throw new NotFoundError(ERROR_MESSAGES.notFound);
-      } else {
-        throw new AuthError(ERROR_MESSAGES.unauthorized);
-      }
+  Article.findOneAndRemove({ _id: req.params.id, owner: req.user.id })
+    .then((deletedArticle) => {
+      res.status(200).send(deletedArticle);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
         throw new NotFoundError(ERROR_MESSAGES.notFound);
-      }
     })
     .catch(next);
-};
+  }
+
+//   Article.findById(req.params.id).select('+owner')
+//     .then((article) => {
+//       if (article && req.user.id === article.owner) {
+//         Article.deleteOne(article)
+//           .then((deletedArticle) => {
+//             res.status(200).send(deletedArticle);
+//           });
+//       } else if (!article) {
+//         throw new NotFoundError(ERROR_MESSAGES.notFound);
+//       } else {
+//         throw new AuthError(ERROR_MESSAGES.unauthorized);
+//       }
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         throw new NotFoundError(ERROR_MESSAGES.notFound);
+//       }
+//     })
+//     .catch(next);
+// };
