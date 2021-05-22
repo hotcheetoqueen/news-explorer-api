@@ -39,7 +39,7 @@ module.exports.signin = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new AuthError(ERROR_MESSAGES.unauthorized);
+        throw new AuthError(ERROR_MESSAGES.signin);
       }
 
       return bcrypt.compare(password, user.password, (error, isPasswordValid) => {
@@ -59,5 +59,10 @@ module.exports.signin = (req, res, next) => {
       });
     })
 
-    .catch(next);
+    .catch((e) => {
+      if(e instanceof AuthError) {
+        return res.status(STATUS_CODES.unauthorized).send({message: ERROR_MESSAGES.signin});
+      }
+      next();
+    });
 };
