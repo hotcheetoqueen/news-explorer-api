@@ -55,7 +55,7 @@ module.exports.signin = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         });
-        res.status(STATUS_CODES.ok).send({ token });
+        res.status(STATUS_CODES.ok).send({ token, name: user.name, id: user._id, email: user.email });
       });
     })
 
