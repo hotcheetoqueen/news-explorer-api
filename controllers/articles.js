@@ -1,14 +1,15 @@
 const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
+const article = require('../models/article');
 const Article = require('../models/article');
-const { ERROR_MESSAGES } = require('../utils/constants');
+const { ERROR_MESSAGES, STATUS_CODES } = require('../utils/constants');
 
 module.exports.getArticles = (req, res, next) => {
-  Article.find({ })
+  Article.find({ owner: req.user.id })
     .populate('owner')
     .then((articles) => {
-      res.status(200).send({ data: articles });
+        res.status(STATUS_CODES.ok).send({ data: articles });
     })
     .catch(next);
 };
@@ -22,7 +23,7 @@ module.exports.postArticle = (req, res, next) => {
     keyword, title, text, date, source, link, image, owner: req.user.id,
   })
     .then((article) => {
-      res.status(200).send({ data: article });
+      res.status(STATUS_CODES.ok).send({ data: article });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -35,31 +36,10 @@ module.exports.postArticle = (req, res, next) => {
 module.exports.deleteArticle = (req, res, next) => {
   Article.findOneAndRemove({ _id: req.params.id, owner: req.user.id })
     .then((deletedArticle) => {
-      res.status(200).send(deletedArticle);
+      res.status(STATUS_CODES.ok).send(deletedArticle);
     })
     .catch((err) => {
         throw new NotFoundError(ERROR_MESSAGES.notFound);
     })
     .catch(next);
   }
-
-//   Article.findById(req.params.id).select('+owner')
-//     .then((article) => {
-//       if (article && req.user.id === article.owner) {
-//         Article.deleteOne(article)
-//           .then((deletedArticle) => {
-//             res.status(200).send(deletedArticle);
-//           });
-//       } else if (!article) {
-//         throw new NotFoundError(ERROR_MESSAGES.notFound);
-//       } else {
-//         throw new AuthError(ERROR_MESSAGES.unauthorized);
-//       }
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         throw new NotFoundError(ERROR_MESSAGES.notFound);
-//       }
-//     })
-//     .catch(next);
-// };
